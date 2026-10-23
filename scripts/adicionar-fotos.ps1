@@ -36,7 +36,7 @@ if ($novos.Count -eq 0) { Write-Host 'Nada a fazer.'; return }
 
 # 2. Proximo numero de miniatura
 $numeros = Get-ChildItem $thumbs -Filter '*.jpg' | ForEach-Object { [int][IO.Path]::GetFileNameWithoutExtension($_.Name) }
-$proximo = (($numeros | Measure-Object -Maximum).Maximum) + 1
+$proximo = [int](($numeros | Measure-Object -Maximum).Maximum) + 1
 
 # 3. Login (device code)
 $dc = Invoke-RestMethod -Method Post -Uri 'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode' -Body @{ client_id = $ClientId; scope = $Scope }
@@ -107,7 +107,7 @@ function Save-Thumb($origem, $destino) {
 $novosItens = @()
 foreach ($f in $novos) {
   if (-not $porNome.ContainsKey($f.Name)) { Write-Warning "Nao encontrado no OneDrive (aguarde a sincronizacao): $($f.Name)"; continue }
-  $numero = '{0:D4}' -f $proximo
+  $numero = '{0:D4}' -f [int]$proximo
   $arquivoThumb = "$numero.jpg"
   Save-Thumb $f.FullName (Join-Path $thumbs $arquivoThumb)
   $link = New-ShareLink $porNome[$f.Name]
